@@ -16,8 +16,8 @@ public enum NetworkError: Error {
     case contentDecoding(error: Error)
 }
 
-extension NetworkError: CustomStringConvertible {
-    public var description: String {
+extension NetworkError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
             case .operationCancelled:
                 return "Operation was cancelled"
