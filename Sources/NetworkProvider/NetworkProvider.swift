@@ -1,11 +1,15 @@
 //
 //  NetworkProvider.swift
-//  NetworkProvider
+//  KLMAssigment
 //
-//  Created by Vishal on 8/18/22.
+//  Created by vishal on 4/18/23.
 //
 
 import Foundation
+
+public protocol NetworkProviderProtocol {
+    func request<T: Decodable>(dataType: T.Type, service: NetworkService) async throws -> T
+}
 
 public struct NetworkProvider: NetworkProviderProtocol {
     
@@ -15,12 +19,8 @@ public struct NetworkProvider: NetworkProviderProtocol {
         self.session = session
     }
     
-    public func request<T>(dataType: T.Type, service: NetworkService, onQueue: DispatchQueue, completion: @escaping (Result<T, Error>) -> Void) where T: Decodable {
-        let task = session.dataTask(service.urlRequest, dataType: dataType) { result in
-            onQueue.async {
-                completion(result)
-            }
-        }
-        task.resume()
+    public func request<T: Decodable>(dataType: T.Type, service: NetworkService) async throws -> T {
+        return try await session.dataTask(service.urlRequest, dataType: dataType)
     }
 }
+

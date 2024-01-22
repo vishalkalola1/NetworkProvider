@@ -1,34 +1,30 @@
 //
-//  SessionProtocol.swift
-//  NetworkProvider
+//  Session.swift
+//  KLMAssigment
 //
-//  Created by Vishal on 11/10/2022.
+//  Created by vishal on 4/18/23.
 //
 
 import Foundation
 
+public protocol SessionProtocol {
+    func dataTask<T: Decodable>(_ request: URLRequest, dataType: T.Type) async throws -> T
+}
+
 public class Session: SessionProtocol {
-    public let session: URLSession
+    private let session: URLSession
     
     public init(session: URLSession = .shared) {
         self.session = session
     }
     
-    public func dataTask<T: Decodable>(_ request: URLRequest, dataType: T.Type, completion: @escaping (Result<T, Error>) -> Void) -> URLSessionDataTask {
-        
-        return session.dataTask(with: request) { [weak self] data, response, error in
-            completion(Result<T, Error> {
-                guard let self = self else {
-                    throw NetworkError.operationCancelled
-                }
-                
-                if let requestError = error {
-                    throw NetworkError.requestFailed(error: requestError)
-                }
-                
-                try self.validate(response: response, statusCodes: Environment.successStatusCodeRange)
-                return try self.decode(data: data, type: dataType)
-            })
+    public func dataTask<T: Decodable>(_ request: URLRequest, dataType: T.Type) async throws -> T {
+        do {
+            let (data, response) = try await session.data(for: request)
+            try self.validate(response: response, statusCodes: Environment.successStatusCodeRange)
+            return try self.decode(data: data, type: dataType)
+        } catch {
+            throw NetworkError.requestFailed(error: error)
         }
     }
 }
