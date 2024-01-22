@@ -9,8 +9,7 @@ let package = Package(
             name: "NetworkProvider",
             targets: ["NetworkProvider"]),
     ],
-    dependencies: [
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "NetworkProvider",
